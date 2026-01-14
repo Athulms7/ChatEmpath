@@ -132,7 +132,7 @@ export function PrivacySettings() {
         </CardContent>
       </Card>
 
-      <Card>
+      {/* <Card>
         <CardHeader>
           <CardTitle>Export Data</CardTitle>
           <CardDescription>
@@ -159,8 +159,8 @@ export function PrivacySettings() {
             )}
           </Button>
         </CardContent>
-      </Card>
-
+      </Card> */}
+      
       <Card className="border-destructive/50">
         <CardHeader>
           <CardTitle className="text-destructive">Danger Zone</CardTitle>
