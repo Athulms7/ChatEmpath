@@ -16,6 +16,7 @@ interface ChatContextType {
   deleteAllConversations: () => Promise<void>;
   sendMessage: (content: string) => Promise<void>;
   getGroupedConversations: () => GroupedConversations;
+  sendAudioMessage: (file: File) => Promise<void>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -150,6 +151,72 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     }
   }, [currentConversation]);
 
+const sendAudioMessage = useCallback(async (file: File) => {
+  if (!currentConversation) return;
+
+  // System message
+  setMessages((prev) => [
+    ...prev,
+    {
+      id: `sys-${Date.now()}`,
+      conversationId: currentConversation.id,
+      role: 'user',
+      content: '🎙️ Voice message 🎧 Processing your voice...',
+      createdAt: new Date().toISOString(),
+    },
+  ]);
+
+  setIsStreaming(true);
+  setStreamingContent('');
+
+  const response = await conversationsApi.sendAudio(
+    currentConversation.id,
+    file
+  );
+
+  const reader = response.body?.getReader();
+  if (!reader) return;
+
+  const decoder = new TextDecoder();
+  let fullContent = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value, { stream: true });
+    const lines = chunk.split('\n');
+
+    for (const line of lines) {
+      if (!line.startsWith('data: ')) continue;
+
+      const data = JSON.parse(line.slice(6));
+
+      if (data.content) {
+        fullContent += data.content;
+        setStreamingContent(fullContent);
+      }
+
+      if (data.done) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `msg-${Date.now()}`,
+            conversationId: currentConversation.id,
+            role: 'assistant',
+            content: fullContent,
+            createdAt: new Date().toISOString(),
+          },
+        ]);
+        setStreamingContent('');
+      }
+    }
+  }
+
+  setIsStreaming(false);
+}, [currentConversation]);
+
+
   const getGroupedConversations = useCallback((): GroupedConversations => {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
@@ -201,6 +268,7 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
         deleteConversation,
         deleteAllConversations,
         sendMessage,
+        sendAudioMessage,
         getGroupedConversations,
       }}
     >

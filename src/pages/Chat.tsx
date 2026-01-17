@@ -17,6 +17,7 @@ export default function Chat() {
     loadConversations,
     createConversation,
     sendMessage,
+    sendAudioMessage
   } = useChat();
 
   useEffect(() => {
@@ -40,8 +41,7 @@ const handleSendAudio = async (file: File) => {
   if (!currentConversation) {
     await createConversation();
   }
-
-  await conversationsApi.sendAudio(currentConversation!.id, file);
+  await sendAudioMessage(file);
 };
 
   return (
