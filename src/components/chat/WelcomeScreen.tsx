@@ -5,10 +5,10 @@ interface WelcomeScreenProps {
 }
 
 const examplePrompts = [
-  'Explain quantum computing in simple terms',
-  'Write a creative story about a time traveler',
-  'Help me plan a weekly meal prep schedule',
-  'What are the best practices for learning a new language?',
+  "I’m not sure where to begin, but I need to talk to someone",
+  "Something happened that’s been bothering me a lot",
+  "I feel overwhelmed and need help explaining my situation",
+  "I’m struggling to put what happened into words",
 ];
 
 export function WelcomeScreen({ onExampleClick }: WelcomeScreenProps) {

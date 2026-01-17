@@ -81,7 +81,7 @@ export function Sidebar({ isOpen, onToggle }: SidebarProps) {
         <div className="flex h-14 items-center justify-between border-b border-sidebar-border px-4">
           <div className="flex items-center gap-2">
             <Bot className="h-6 w-6 text-sidebar-primary" />
-            <span className="font-semibold">AI Assistant</span>
+            <span className="font-semibold">EmpathAi</span>
           </div>
           <Button
             variant="ghost"

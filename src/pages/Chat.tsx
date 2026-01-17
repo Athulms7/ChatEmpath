@@ -4,6 +4,7 @@ import { Sidebar } from '@/components/sidebar/Sidebar';
 import { MessageList } from '@/components/chat/MessageList';
 import { ChatInput } from '@/components/chat/ChatInput';
 import { WelcomeScreen } from '@/components/chat/WelcomeScreen';
+import { conversationsApi } from '@/services/api';
 
 export default function Chat() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -35,6 +36,13 @@ export default function Chat() {
     }
     await sendMessage(message);
   };
+const handleSendAudio = async (file: File) => {
+  if (!currentConversation) {
+    await createConversation();
+  }
+
+  await conversationsApi.sendAudio(currentConversation!.id, file);
+};
 
   return (
     <div className="flex h-screen bg-background">
@@ -51,7 +59,12 @@ export default function Chat() {
             streamingContent={streamingContent}
           />
         )}
-        <ChatInput onSend={handleSend} isStreaming={isStreaming} />
+        <ChatInput
+  onSend={handleSend}
+  onSendAudio={handleSendAudio}   // ✅ ADD
+  isStreaming={isStreaming}
+/>
+
       </main>
     </div>
   );

@@ -131,6 +131,22 @@ export const conversationsApi = {
 
   getMessages: (id: string) =>
     apiCall<MessagesResponse>(`/conversations/${id}/messages`),
+  
+
+  sendAudio: async (conversationId: string, file: File): Promise<Response> => {
+  const token = localStorage.getItem('auth_token');
+
+  const formData = new FormData();
+  formData.append('file', file);
+
+  return fetch(`${API_BASE_URL}/analyze/${conversationId}/audio`, {
+    method: 'POST',
+    headers: {
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+    body: formData,
+  });
+},
 
   // Streaming message - returns a ReadableStream
   sendMessage: async (conversationId: string, content: string): Promise<Response> => {
