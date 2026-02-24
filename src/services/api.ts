@@ -132,7 +132,12 @@ export const conversationsApi = {
   getMessages: (id: string) =>
     apiCall<MessagesResponse>(`/conversations/${id}/messages`),
   
-
+  rename: (id: string, title: string) =>
+  apiCall<void>(`/conversations/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ title }),
+  }),
+  
   sendAudio: async (conversationId: string, file: File): Promise<Response> => {
   const token = localStorage.getItem('auth_token');
 

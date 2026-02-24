@@ -11,7 +11,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { MessageSquare, Trash2 } from 'lucide-react';
+import { MessageSquare, Trash2, Pencil, Check } from 'lucide-react';
 import type { Conversation } from '@/types';
 
 interface ChatHistoryGroupProps {
@@ -20,8 +20,10 @@ interface ChatHistoryGroupProps {
 }
 
 export function ChatHistoryGroup({ title, conversations }: ChatHistoryGroupProps) {
-  const { currentConversation, selectConversation, deleteConversation } = useChat();
+  const { currentConversation, selectConversation, deleteConversation,renameConversation } = useChat();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+const [editValue, setEditValue] = useState('');
 
   const handleDelete = async () => {
     if (deleteId) {
@@ -50,10 +52,39 @@ export function ChatHistoryGroup({ title, conversations }: ChatHistoryGroupProps
               className="flex flex-1 items-center gap-2 px-2 py-2 text-left"
             >
               <MessageSquare className="h-4 w-4 shrink-0" />
-              <span className="truncate text-sm">
-                {conv.title || conv.preview || 'New Chat'}
-              </span>
+              {editingId === conv.id ? (
+  <input
+    autoFocus
+    value={editValue}
+    onChange={(e) => setEditValue(e.target.value)}
+    onKeyDown={async (e) => {
+      if (e.key === 'Enter') {
+        await renameConversation(conv.id, editValue);
+        setEditingId(null);
+      }
+      if (e.key === 'Escape') {
+        setEditingId(null);
+      }
+    }}
+    className="w-full bg-transparent text-sm outline-none"
+  />
+) : (
+  <span className="truncate text-sm">
+    {conv.title || conv.preview || 'New Chat'}
+  </span>
+)}
             </button>
+            <Button
+  variant="ghost"
+  size="icon"
+  className="absolute right-8 h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100"
+  onClick={() => {
+    setEditingId(conv.id);
+    setEditValue(conv.title || '');
+  }}
+>
+  <Pencil className="h-4 w-4 text-muted-foreground hover:text-primary" />
+</Button>
             <Button
               variant="ghost"
               size="icon"

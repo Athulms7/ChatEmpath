@@ -17,6 +17,7 @@ interface ChatContextType {
   sendMessage: (content: string) => Promise<void>;
   getGroupedConversations: () => GroupedConversations;
   sendAudioMessage: (file: File) => Promise<void>;
+  renameConversation: (id: string, title: string) => Promise<void>;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -82,6 +83,32 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
       setMessages([]);
     }
   }, []);
+
+  const renameConversation = useCallback(
+  async (id: string, title: string) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+
+    const response = await conversationsApi.rename(id, trimmed);
+
+    if (response.success) {
+      // Update conversations list
+      setConversations((prev) =>
+        prev.map((conv) =>
+          conv.id === id ? { ...conv, title: trimmed } : conv
+        )
+      );
+
+      // Update current conversation if needed
+      if (currentConversation?.id === id) {
+        setCurrentConversation((prev) =>
+          prev ? { ...prev, title: trimmed } : prev
+        );
+      }
+    }
+  },
+  [currentConversation]
+);
 
   const sendMessage = useCallback(async (content: string) => {
     if (!currentConversation) return;
@@ -270,6 +297,7 @@ const sendAudioMessage = useCallback(async (file: File) => {
         sendMessage,
         sendAudioMessage,
         getGroupedConversations,
+        renameConversation
       }}
     >
       {children}
